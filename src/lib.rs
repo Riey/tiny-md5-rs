@@ -137,6 +137,23 @@ pub fn hash(mut input: impl Read) -> [u8; 16] {
     state.digest()
 }
 
+pub fn hash_to_hex(input: impl Read) -> Vec<u8> {
+    const HEX: [u8; 16] = [b'0', b'1', b'2', b'3', b'4', b'5', b'6', b'7', b'8', b'9', b'a', b'b', b'c', b'd', b'e', b'f'];
+
+    let hash = hash(input);
+    let mut ret = Vec::with_capacity(hash.len() * 2);
+
+    for b in hash.iter().cloned() {
+        let higher = (b / 16) as usize;
+        let lower = (b % 16) as usize;
+
+        ret.push(HEX[higher]);
+        ret.push(HEX[lower]);
+    }
+
+    ret
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -144,12 +161,12 @@ mod tests {
     #[test]
     fn hash_md5() {
         assert_eq!(
-            hex::encode(hash(&b"md5"[..])),
-            "1bc29b36f623ba82aaf6724fd3b16718"
+            hash_to_hex(&b"md5"[..]),
+            b"1bc29b36f623ba82aaf6724fd3b16718"
         );
         assert_eq!(
-            hex::encode(hash(&b""[..])),
-            "d41d8cd98f00b204e9800998ecf8427e"
+            hash_to_hex(&b""[..]),
+            b"d41d8cd98f00b204e9800998ecf8427e"
         );
     }
 }
