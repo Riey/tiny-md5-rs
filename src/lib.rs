@@ -1,6 +1,4 @@
 use crunchy::unroll;
-use byte_slice_cast::AsSliceOf;
-use byteorder::{NativeEndian, WriteBytesExt};
 use std::io::Read;
 use std::num::Wrapping;
 
@@ -44,8 +42,10 @@ impl MD5State {
         }
     }
 
-    pub fn process(&mut self, chunk: &[u8]) {
-        let chunk = chunk.as_slice_of::<u32>().unwrap();
+    pub fn process(&mut self, chunk: &[u8; 64]) {
+        let chunk: &[u32] = unsafe {
+            std::slice::from_raw_parts(chunk.as_ptr() as *const u32, 16)
+        };
 
         let mut a = self.a;
         let mut b = self.b;
@@ -77,18 +77,22 @@ impl MD5State {
         self.d += d;
     }
 
-    pub fn digest(&self) -> Vec<u8> {
-        let mut ret = Vec::with_capacity(16);
-        ret.write_u32::<NativeEndian>(self.a.0).unwrap();
-        ret.write_u32::<NativeEndian>(self.b.0).unwrap();
-        ret.write_u32::<NativeEndian>(self.c.0).unwrap();
-        ret.write_u32::<NativeEndian>(self.d.0).unwrap();
+    pub fn digest(&self) -> [u8; 16] {
+        let mut ret = [0; 16];
+
+        unsafe {
+            let ptr = ret.as_mut_ptr() as *mut u32;
+            *ptr.add(0) = self.a.0;
+            *ptr.add(1) = self.b.0;
+            *ptr.add(2) = self.c.0;
+            *ptr.add(3) = self.d.0;
+        }
 
         ret
     }
 }
 
-pub fn hash(mut input: impl Read) -> Vec<u8> {
+pub fn hash(mut input: impl Read) -> [u8; 16] {
     let mut total_len = 0;
     let mut state = MD5State::new();
     let mut buf = [0u8; 64];
@@ -98,7 +102,7 @@ pub fn hash(mut input: impl Read) -> Vec<u8> {
         total_len += len;
 
         if len == 64 {
-            state.process(&buf[..]);
+            state.process(&buf);
         } else {
             let rem = total_len % 64;
             buf[rem] = 1 << 7;
@@ -108,7 +112,7 @@ pub fn hash(mut input: impl Read) -> Vec<u8> {
             unsafe {
                 *(buf.as_mut_ptr().add(56) as *mut u64) = (total_len * 8) as u64;
             }
-            state.process(&buf[..]);
+            state.process(&buf);
             break;
         }
     }
