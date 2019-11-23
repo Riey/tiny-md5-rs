@@ -60,8 +60,8 @@ impl MD5State {
         unroll! {
             for i in 0..64 {
                 let f = match i {
-                    0..=15 => (b & c) | (!b & d),
-                    16..=31 => (d & b) | (!d & c),
+                    0..=15 => d ^ (b & (c ^ d)),
+                    16..=31 => c ^ (d & (b ^ c)),
                     32..=47 => b ^ c ^ d,
                     48..=63 => c ^ (b | !d),
                     _ => unreachable!(),
