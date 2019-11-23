@@ -47,9 +47,7 @@ impl MD5State {
     }
 
     pub fn process(&mut self, chunk: &[u8; 64]) {
-        let chunk: &[u32; 16] = unsafe {
-            std::mem::transmute(chunk)
-        };
+        let chunk: &[u32; 16] = unsafe { std::mem::transmute(chunk) };
 
         let mut a = self.a;
         let mut b = self.b;
@@ -83,7 +81,8 @@ impl MD5State {
                 $b = $b.wrapping_add(f.rotate_left(R[$i]));
             };
         }
-        step!(0 , d ^ (b & (c ^ d)), a, b, c, d);
+
+        step!(0, d ^ (b & (c ^ d)), a, b, c, d);
         step!(16, c ^ (d & (b ^ c)), a, b, c, d);
         step!(32, b ^ c ^ d, a, b, c, d);
         step!(48, c ^ (b | !d), a, b, c, d);
