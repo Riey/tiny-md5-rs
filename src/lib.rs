@@ -55,37 +55,37 @@ impl MD5State {
         let mut d = self.d;
 
         macro_rules! step {
-            ($base:expr, $formulation:expr, $a:expr, $b:expr, $c:expr, $d:expr) => {
-                step!(@$base + 0;  $formulation, $a, $b, $c, $d);
-                step!(@$base + 1;  $formulation, $a, $b, $c, $d);
-                step!(@$base + 2;  $formulation, $a, $b, $c, $d);
-                step!(@$base + 3;  $formulation, $a, $b, $c, $d);
-                step!(@$base + 4;  $formulation, $a, $b, $c, $d);
-                step!(@$base + 5;  $formulation, $a, $b, $c, $d);
-                step!(@$base + 6;  $formulation, $a, $b, $c, $d);
-                step!(@$base + 7;  $formulation, $a, $b, $c, $d);
-                step!(@$base + 8;  $formulation, $a, $b, $c, $d);
-                step!(@$base + 9;  $formulation, $a, $b, $c, $d);
-                step!(@$base + 10; $formulation, $a, $b, $c, $d);
-                step!(@$base + 11; $formulation, $a, $b, $c, $d);
-                step!(@$base + 12; $formulation, $a, $b, $c, $d);
-                step!(@$base + 13; $formulation, $a, $b, $c, $d);
-                step!(@$base + 14; $formulation, $a, $b, $c, $d);
-                step!(@$base + 15; $formulation, $a, $b, $c, $d);
+            ($base:expr, $formulation:expr) => {
+                step!(@$base + 0;  $formulation);
+                step!(@$base + 1;  $formulation);
+                step!(@$base + 2;  $formulation);
+                step!(@$base + 3;  $formulation);
+                step!(@$base + 4;  $formulation);
+                step!(@$base + 5;  $formulation);
+                step!(@$base + 6;  $formulation);
+                step!(@$base + 7;  $formulation);
+                step!(@$base + 8;  $formulation);
+                step!(@$base + 9;  $formulation);
+                step!(@$base + 10; $formulation);
+                step!(@$base + 11; $formulation);
+                step!(@$base + 12; $formulation);
+                step!(@$base + 13; $formulation);
+                step!(@$base + 14; $formulation);
+                step!(@$base + 15; $formulation);
             };
-            (@$i:expr; $formulation:expr, $a:expr, $b:expr, $c:expr, $d:expr) => {
+            (@$i:expr; $formulation:expr) => {
                 let f = $formulation.wrapping_add(a).wrapping_add(K[$i]).wrapping_add(chunk[G[$i]]);
-                $a = $d;
-                $d = $c;
-                $c = $b;
-                $b = $b.wrapping_add(f.rotate_left(R[$i]));
+                a = d;
+                d = c;
+                c = b;
+                b = b.wrapping_add(f.rotate_left(R[$i]));
             };
         }
 
-        step!(0, d ^ (b & (c ^ d)), a, b, c, d);
-        step!(16, c ^ (d & (b ^ c)), a, b, c, d);
-        step!(32, b ^ c ^ d, a, b, c, d);
-        step!(48, c ^ (b | !d), a, b, c, d);
+        step!(0, d ^ (b & (c ^ d)));
+        step!(16, c ^ (d & (b ^ c)));
+        step!(32, b ^ c ^ d);
+        step!(48, c ^ (b | !d));
 
         self.a = self.a.wrapping_add(a);
         self.b = self.b.wrapping_add(b);
