@@ -16,3 +16,8 @@ codegen-units = 1
 byteorder = "1.3.2"
 hex = "0.4.0"
 byte-slice-cast = "0.3.4"
+crunchy = "0.2.2"
+
+[dev-dependencies]
+flame = "0.2.2"
+
