@@ -1,3 +1,8 @@
+#![cfg_attr(test, feature(test))]
+
+#[cfg(test)]
+extern crate test;
+
 use crunchy::unroll;
 use std::io::Read;
 use std::num::Wrapping;
@@ -134,5 +139,20 @@ mod tests {
             hex::encode(hash(&b""[..])),
             "d41d8cd98f00b204e9800998ecf8427e"
         );
+    }
+}
+
+#[cfg(test)]
+mod benches {
+    use super::*;
+
+    #[bench]
+    fn bench(b: &mut test::Bencher) {
+        let test = [45u8; 1024 * 1024];
+        b.bytes = test.len() as u64;
+
+        b.iter(|| {
+            hash(&test[..]);
+        });
     }
 }
