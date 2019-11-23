@@ -149,8 +149,18 @@ mod benches {
     use super::*;
 
     #[bench]
-    fn bench(b: &mut test::Bencher) {
-        let test = [45u8; 1024 * 1024];
+    fn bench_1k(b: &mut test::Bencher) {
+        let test = [1u8; 1024];
+        b.bytes = test.len() as u64;
+
+        b.iter(|| {
+            hash(&test[..]);
+        });
+    }
+
+    #[bench]
+    fn bench_64k(b: &mut test::Bencher) {
+        let test = [1u8; 64 * 1024];
         b.bytes = test.len() as u64;
 
         b.iter(|| {
