@@ -46,8 +46,8 @@ impl MD5State {
         }
     }
 
-    pub fn process(&mut self, chunk: &[u8; 64]) {
-        let chunk: &[u32; 16] = unsafe { std::mem::transmute(chunk) };
+    pub fn process(&mut self, chunk: [u8; 64]) {
+        let chunk: [u32; 16] = unsafe { std::mem::transmute(chunk) };
 
         let mut a = self.a;
         let mut b = self.b;
@@ -119,7 +119,7 @@ pub fn hash(mut input: impl Read) -> [u8; 16] {
         total_len += len;
 
         if len == 64 {
-            state.process(&buf);
+            state.process(buf);
         } else {
             let rem = total_len % 64;
             buf[rem] = 1 << 7;
@@ -129,7 +129,7 @@ pub fn hash(mut input: impl Read) -> [u8; 16] {
             unsafe {
                 *(buf.as_mut_ptr().add(56) as *mut u64) = (total_len * 8) as u64;
             }
-            state.process(&buf);
+            state.process(buf);
             break;
         }
     }
