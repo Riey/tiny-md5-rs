@@ -28,31 +28,27 @@ const G: [usize; 64] = [
     8, 15, 6, 13, 4, 11, 2, 9,
 ];
 
-struct MD5State {
-    a: u32,
-    b: u32,
-    c: u32,
-    d: u32,
-}
+#[repr(transparent)]
+struct MD5State([u32; 4]);
 
 impl MD5State {
     #[inline]
     pub const fn new() -> Self {
-        Self {
-            a: 0x67452301,
-            b: 0xEFCDAB89,
-            c: 0x98BADCFE,
-            d: 0x10325476,
-        }
+        Self([
+            0x67452301,
+            0xEFCDAB89,
+            0x98BADCFE,
+            0x10325476,
+        ])
     }
 
     pub fn process(&mut self, chunk: [u8; 64]) {
         let chunk: [u32; 16] = unsafe { std::mem::transmute(chunk) };
 
-        let mut a = self.a;
-        let mut b = self.b;
-        let mut c = self.c;
-        let mut d = self.d;
+        let mut a = self.0[0];
+        let mut b = self.0[1];
+        let mut c = self.0[2];
+        let mut d = self.0[3];
 
         macro_rules! step {
             ($base:expr, $formulation:expr) => {
@@ -87,25 +83,15 @@ impl MD5State {
         step!(32, b ^ c ^ d);
         step!(48, c ^ (b | !d));
 
-        self.a = self.a.wrapping_add(a);
-        self.b = self.b.wrapping_add(b);
-        self.c = self.c.wrapping_add(c);
-        self.d = self.d.wrapping_add(d);
+        self.0[0] = self.0[0].wrapping_add(a);
+        self.0[1] = self.0[1].wrapping_add(b);
+        self.0[2] = self.0[2].wrapping_add(c);
+        self.0[3] = self.0[3].wrapping_add(d);
     }
 
     #[inline]
     pub fn digest(&self) -> [u8; 16] {
-        let mut ret = [0; 16];
-
-        unsafe {
-            let ptr = ret.as_mut_ptr() as *mut u32;
-            *ptr.add(0) = self.a;
-            *ptr.add(1) = self.b;
-            *ptr.add(2) = self.c;
-            *ptr.add(3) = self.d;
-        }
-
-        ret
+        unsafe { std::mem::transmute(self.0) }
     }
 }
 
