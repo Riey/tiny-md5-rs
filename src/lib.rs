@@ -3,7 +3,6 @@
 #[cfg(test)]
 extern crate test;
 
-use crunchy::unroll;
 use std::io::Read;
 
 const K: [u32; 64] = [
@@ -57,24 +56,37 @@ impl MD5State {
         let mut c = self.c;
         let mut d = self.d;
 
-        unroll! {
-            for i in 0..64 {
-                let f = match i {
-                    0..=15 => d ^ (b & (c ^ d)),
-                    16..=31 => c ^ (d & (b ^ c)),
-                    32..=47 => b ^ c ^ d,
-                    48..=63 => c ^ (b | !d),
-                    _ => unreachable!(),
-                };
-
-                let f = f.wrapping_add(a).wrapping_add(K[i]).wrapping_add(chunk[G[i]]);
-
-                a = d;
-                d = c;
-                c = b;
-                b = b.wrapping_add(f.rotate_left(R[i]));
-            }
+        macro_rules! step {
+            ($base:expr, $formulation:expr, $a:expr, $b:expr, $c:expr, $d:expr) => {
+                step!(@$base + 0;  $formulation, $a, $b, $c, $d);
+                step!(@$base + 1;  $formulation, $a, $b, $c, $d);
+                step!(@$base + 2;  $formulation, $a, $b, $c, $d);
+                step!(@$base + 3;  $formulation, $a, $b, $c, $d);
+                step!(@$base + 4;  $formulation, $a, $b, $c, $d);
+                step!(@$base + 5;  $formulation, $a, $b, $c, $d);
+                step!(@$base + 6;  $formulation, $a, $b, $c, $d);
+                step!(@$base + 7;  $formulation, $a, $b, $c, $d);
+                step!(@$base + 8;  $formulation, $a, $b, $c, $d);
+                step!(@$base + 9;  $formulation, $a, $b, $c, $d);
+                step!(@$base + 10; $formulation, $a, $b, $c, $d);
+                step!(@$base + 11; $formulation, $a, $b, $c, $d);
+                step!(@$base + 12; $formulation, $a, $b, $c, $d);
+                step!(@$base + 13; $formulation, $a, $b, $c, $d);
+                step!(@$base + 14; $formulation, $a, $b, $c, $d);
+                step!(@$base + 15; $formulation, $a, $b, $c, $d);
+            };
+            (@$i:expr; $formulation:expr, $a:expr, $b:expr, $c:expr, $d:expr) => {
+                let f = $formulation.wrapping_add(a).wrapping_add(K[$i]).wrapping_add(chunk[G[$i]]);
+                $a = $d;
+                $d = $c;
+                $c = $b;
+                $b = $b.wrapping_add(f.rotate_left(R[$i]));
+            };
         }
+        step!(0 , d ^ (b & (c ^ d)), a, b, c, d);
+        step!(16, c ^ (d & (b ^ c)), a, b, c, d);
+        step!(32, b ^ c ^ d, a, b, c, d);
+        step!(48, c ^ (b | !d), a, b, c, d);
 
         self.a = self.a.wrapping_add(a);
         self.b = self.b.wrapping_add(b);
