@@ -48,8 +48,8 @@ impl MD5State {
     }
 
     pub fn process(&mut self, chunk: &[u8; 64]) {
-        let chunk: &[u32] = unsafe {
-            std::slice::from_raw_parts(chunk.as_ptr() as *const u32, 16)
+        let chunk: &[u32; 16] = unsafe {
+            std::mem::transmute(chunk)
         };
 
         let mut a = self.a;
