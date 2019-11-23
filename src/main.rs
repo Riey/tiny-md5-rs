@@ -1,4 +1,4 @@
-use md5_rs::hash_to_hex;
+use tiny_md5_rs::hash_to_hex;
 use std::env;
 use std::fs;
 use std::io::{self, BufReader, Write};

@@ -1,5 +1,5 @@
 [package]
-name = "md5-rs"
+name = "tiny-md5-rs"
 version = "0.1.0"
 authors = ["Riey <creeper844@gmail.com>"]
 edition = "2018"
