@@ -9,9 +9,9 @@ fn main() -> io::Result<()> {
         .find(|arg| std::path::Path::new(arg).exists())
     {
         let file = fs::File::open(file)?;
-        hash(BufReader::with_capacity(1024 * 1024, file))
+        hash(BufReader::with_capacity(1024 * 512, file))
     } else {
-        hash(BufReader::with_capacity(1024 * 1024, io::stdin()))
+        hash(BufReader::with_capacity(1024 * 512, io::stdin()))
     };
 
     println!("{}", hex::encode(ret));
