@@ -5,7 +5,6 @@ extern crate test;
 
 use crunchy::unroll;
 use std::io::Read;
-use std::num::Wrapping;
 
 const K: [u32; 64] = [
     0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee, 0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
@@ -31,20 +30,20 @@ const G: [usize; 64] = [
 ];
 
 struct MD5State {
-    a: Wrapping<u32>,
-    b: Wrapping<u32>,
-    c: Wrapping<u32>,
-    d: Wrapping<u32>,
+    a: u32,
+    b: u32,
+    c: u32,
+    d: u32,
 }
 
 impl MD5State {
     #[inline]
     pub const fn new() -> Self {
         Self {
-            a: Wrapping(0x67452301),
-            b: Wrapping(0xEFCDAB89),
-            c: Wrapping(0x98BADCFE),
-            d: Wrapping(0x10325476),
+            a: 0x67452301,
+            b: 0xEFCDAB89,
+            c: 0x98BADCFE,
+            d: 0x10325476,
         }
     }
 
@@ -68,19 +67,19 @@ impl MD5State {
                     _ => unreachable!(),
                 };
 
-                let f = f + a + Wrapping(K[i]) + Wrapping(chunk[G[i]]);
+                let f = f.wrapping_add(a).wrapping_add(K[i]).wrapping_add(chunk[G[i]]);
 
                 a = d;
                 d = c;
                 c = b;
-                b = b + Wrapping(f.0.rotate_left(R[i]));
+                b = b.wrapping_add(f.rotate_left(R[i]));
             }
         }
 
-        self.a += a;
-        self.b += b;
-        self.c += c;
-        self.d += d;
+        self.a = self.a.wrapping_add(a);
+        self.b = self.b.wrapping_add(b);
+        self.c = self.c.wrapping_add(c);
+        self.d = self.d.wrapping_add(d);
     }
 
     #[inline]
@@ -89,10 +88,10 @@ impl MD5State {
 
         unsafe {
             let ptr = ret.as_mut_ptr() as *mut u32;
-            *ptr.add(0) = self.a.0;
-            *ptr.add(1) = self.b.0;
-            *ptr.add(2) = self.c.0;
-            *ptr.add(3) = self.d.0;
+            *ptr.add(0) = self.a;
+            *ptr.add(1) = self.b;
+            *ptr.add(2) = self.c;
+            *ptr.add(3) = self.d;
         }
 
         ret
