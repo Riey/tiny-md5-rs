@@ -38,6 +38,7 @@ struct MD5State {
 }
 
 impl MD5State {
+    #[inline]
     pub const fn new() -> Self {
         Self {
             a: Wrapping(0x67452301),
@@ -82,6 +83,7 @@ impl MD5State {
         self.d += d;
     }
 
+    #[inline]
     pub fn digest(&self) -> [u8; 16] {
         let mut ret = [0; 16];
 
