@@ -8,7 +8,6 @@ fn main() -> io::Result<()> {
         .skip(1)
         .find(|arg| std::path::Path::new(arg).exists())
     {
-        println!("Read from {}", file);
         let file = fs::File::open(file)?;
         hash(BufReader::with_capacity(1024 * 1024, file))
     } else {
