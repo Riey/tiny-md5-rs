@@ -1,6 +1,6 @@
 pub struct MD5State {
-    pub state: [u32; 4],
     pub buf: [u8; 64],
+    pub state: [u32; 4],
     pub total_len: usize,
 }
 
@@ -8,8 +8,8 @@ impl MD5State {
     #[inline]
     pub const fn new() -> Self {
         Self {
-            state: [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476],
             buf: [0; 64],
+            state: [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476],
             total_len: 0,
         }
     }
@@ -40,7 +40,6 @@ impl MD5State {
 
     pub fn process(&mut self) {
         let chunk: [u32; 16] = unsafe { std::mem::transmute(self.buf) };
-
         let [mut a, mut b, mut c, mut d] = self.state;
 
         macro_rules! step {
