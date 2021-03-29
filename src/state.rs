@@ -38,7 +38,6 @@ impl MD5State {
         self.process();
     }
 
-    #[inline(always)]
     pub fn process(&mut self) {
         let chunk: [u32; 16] = unsafe { std::mem::transmute(self.buf) };
 
