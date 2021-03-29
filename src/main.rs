@@ -9,7 +9,8 @@ fn main() -> io::Result<()> {
         .find(|arg| std::path::Path::new(arg).exists())
     {
         let file = fs::File::open(file)?;
-        hash_to_hex(BufReader::with_capacity(1024 * 512, file))
+        let mmap = unsafe { memmap::MmapOptions::new().map(&file) }?;
+        hash_to_hex(&*mmap)
     } else {
         hash_to_hex(BufReader::with_capacity(1024 * 512, io::stdin()))
     };
